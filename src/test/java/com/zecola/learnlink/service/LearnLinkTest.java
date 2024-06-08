@@ -17,7 +17,7 @@ public class LearnLinkTest {
     @Test
     public void testSearchUserByTags() {
         List<String> tagNameList = Arrays.asList("java", "python");
-        List<User> userList = userService.searchUserByTags(tagNameList);
+        List<User> userList = userService.searchUsersByTags(tagNameList);
         Assert.assertNotNull(userList);
     }
 }

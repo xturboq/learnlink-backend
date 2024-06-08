@@ -18,7 +18,9 @@ import org.springframework.util.DigestUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -191,42 +193,55 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     /**
-     * 根据标签搜索用户(SQL版)
+     * 根据标签搜索用户（内存过滤）
      *
-     * @param tagNameList 标签名列表，用于指定搜索的标签条件。
+     * @param tagNameList 用户要拥有的标签
      * @return
      */
     @Override
-    public List<User> searchUserByTags(List<String> tagNameList){
-        if (CollectionUtils.isEmpty(tagNameList)){
+    public List<User> searchUsersByTags(List<String> tagNameList) {
+        if (CollectionUtils.isEmpty(tagNameList)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        //拼接查询
+        // 1. 先查询所有用户
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        for (String tagName : tagNameList) {
-            queryWrapper.like("tags", tagName);
-        }
-        List<User> userList = this.list(queryWrapper);
-        return userList.stream().map(this::getSafetyUser).collect(Collectors.toList());
+        List<User> userList = userMapper.selectList(queryWrapper);
+        Gson gson = new Gson();
+        // 2. 在内存中判断是否包含要求的标签
+        return userList.stream().filter(user -> {
+            String tagsStr = user.getTags();
+            Set<String> tempTagNameSet = gson.fromJson(tagsStr, new TypeToken<Set<String>>() {
+            }.getType());
+            tempTagNameSet = Optional.ofNullable(tempTagNameSet).orElse(new HashSet<>());
+            for (String tagName : tagNameList) {
+                if (!tempTagNameSet.contains(tagName)) {
+                    return false;
+                }
+            }
+            return true;
+        }).map(this::getSafetyUser).collect(Collectors.toList());
+    }
 
-//        // 1.先查询所有用户
-//        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-//        List<User> userList = userMapper.selectList(queryWrapper);
-//        Gson gson = new Gson();
-//        // 2.在内存中判断是否包含要求的标签
-//        return userList.stream().filter(user -> {
-//            String tagsStr = user.getTags();
-//            if (StringUtils.isBlank(tagsStr)) {
-//                return false;
-//            }
-//            Set<String> tempTagNameSet = gson.fromJson(tagsStr, new TypeToken<Set<String>>(){}.getType());
-//            for (String tagName : tagNameList) {
-//                if(!tempTagNameSet.contains(tagName)) {
-//                    return false;
-//                }
-//            }
-//            return true;
-//        }).map(this::getSafetyUser).collect(Collectors.toList());
+
+    /**
+     * 根据标签搜索用户（SQL 查询版）
+     *
+     * @param tagNameList 用户要拥有的标签
+     * @return
+     */
+    @Deprecated
+    private List<User> searchUsersByTagsBySQL(List<String> tagNameList) {
+        if (CollectionUtils.isEmpty(tagNameList)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        // 拼接 and 查询
+        // like '%Java%' and like '%Python%'
+        for (String tagName : tagNameList) {
+            queryWrapper = queryWrapper.like("tags", tagName);
+        }
+        List<User> userList = userMapper.selectList(queryWrapper);
+        return userList.stream().map(this::getSafetyUser).collect(Collectors.toList());
     }
 }
 

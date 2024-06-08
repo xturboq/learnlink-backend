@@ -54,5 +54,5 @@ public interface UserService extends IService<User> {
      * @param tagNameList 标签名列表，用于指定搜索的标签条件。
      * @return 符合条件的用户数量。返回的是一个整数，表示满足搜索条件的用户数量。
      */
-    List<User> searchUserByTags(List<String> tagNameList);
+    List<User> searchUsersByTags(List<String> tagNameList);
 }
