@@ -11,6 +11,7 @@ import com.zecola.learnlink.model.request.UserRegisterRequest;
 import com.zecola.learnlink.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -28,6 +29,7 @@ import static com.zecola.learnlink.contant.UserConstant.USER_LOGIN_STATE;
 @RestController
 @RequestMapping("/user")
 @Slf4j
+@CrossOrigin(origins = {"http://localhost:3000"})
 public class UserController {
 
     @Resource
@@ -134,6 +136,15 @@ public class UserController {
 
     }
 
+    @GetMapping("/search/tags")
+    public BaseResponse<List<User>> searchUsersByTags(@RequestParam(required = false) List<String> tagNameList) {
+        if (CollectionUtils.isEmpty(tagNameList)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        List<User> userList = userService.searchUsersByTags(tagNameList);
+        return ResultUtils.success(userList);
+    }
+
     /**
      * 删除用户
      * @param id
@@ -169,5 +180,7 @@ public class UserController {
         return true;*/
         return user != null && user.getUserRole() == ADMIN_ROLE;
     }
+
+
 
 }
