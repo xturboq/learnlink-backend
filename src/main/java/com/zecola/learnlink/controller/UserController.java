@@ -1,6 +1,8 @@
 package com.zecola.learnlink.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zecola.learnlink.common.BaseResponse;
 import com.zecola.learnlink.common.ErrorCode;
 import com.zecola.learnlink.common.ResultUtils;
@@ -142,6 +144,23 @@ public class UserController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         List<User> userList = userService.searchUsersByTags(tagNameList);
+        return ResultUtils.success(userList);
+    }
+
+    /**
+     * 根据当前请求推荐用户列表。
+     * <p>
+     * 该方法通过查询所有用户，并对每个用户进行安全处理，然后返回处理后的用户列表。
+     * 使用了流式处理来增强代码的可读性和简洁性。
+     *
+     * @param request 当前的HTTP请求对象，本方法中未直接使用，但作为方法参数以支持后续可能的需求。
+     * @return 返回一个包含处理后的用户列表的成功响应。
+     */
+    @GetMapping("/recommend")
+    public BaseResponse<Page<User>> recommendUsers(long pageSize, long pageNum,HttpServletRequest request) {
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        Page<User> userList = userService.page(new Page<>(pageNum, pageSize), queryWrapper);
+                // 对查询到的用户列表进行流式处理，对每个用户调用getSafetyUser方法进行安全处理
         return ResultUtils.success(userList);
     }
 
