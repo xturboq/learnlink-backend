@@ -163,7 +163,7 @@ public class UserController {
      * @return
      */
     @PostMapping("/delete")
-    public BaseResponse<Boolean> deteleUser(@RequestBody long id, HttpServletRequest request) {
+    public BaseResponse<Boolean> deleteUser(@RequestBody long id, HttpServletRequest request) {
         if (!userService.isAdmin(request)) {
             throw new BusinessException(ErrorCode.NO_AUTH);
         }

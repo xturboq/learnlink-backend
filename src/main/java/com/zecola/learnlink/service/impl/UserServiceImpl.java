@@ -272,7 +272,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         //仅管理员可查询
         Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
         User user = (User) userObj;
-        return user != null && user.getUserRole() == ADMIN_ROLE ;
+        return user != null && user.getUserRole() == ADMIN_ROLE;
     }
 
     /**
