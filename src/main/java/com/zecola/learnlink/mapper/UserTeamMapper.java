@@ -1,0 +1,18 @@
+package com.zecola.learnlink.mapper;
+
+import com.zecola.learnlink.model.domain.UserTeam;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+
+/**
+* @author XTurbo
+* @description 针对表【user_team(用户队伍关系)】的数据库操作Mapper
+* @createDate 2024-06-18 19:25:32
+* @Entity com.zecola.learnlink.model.domain.UserTeam
+*/
+public interface UserTeamMapper extends BaseMapper<UserTeam> {
+
+}
+
+
+
+
