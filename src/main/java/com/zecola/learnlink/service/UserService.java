@@ -87,6 +87,5 @@ public interface UserService extends IService<User> {
     boolean isAdmin(User loginUser);
 
 
-
-
+    List<User> matchUsers(long num, User user);
 }
