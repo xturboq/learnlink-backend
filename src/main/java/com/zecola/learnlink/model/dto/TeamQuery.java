@@ -1,6 +1,6 @@
 package com.zecola.learnlink.model.dto;
 
-import com.zecola.learnlink.config.PageRequest;
+import com.zecola.learnlink.common.PageRequest;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
