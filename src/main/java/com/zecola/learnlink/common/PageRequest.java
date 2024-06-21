@@ -1,4 +1,4 @@
-package com.zecola.learnlink.config;
+package com.zecola.learnlink.common;
 
 import lombok.Data;
 
@@ -10,7 +10,7 @@ import java.io.Serializable;
 @Data
 public class PageRequest implements Serializable {
 
-    private static final long serialVersionUID = -5860707094194210842L;
+    private static final long serialVersionUID = -4767531324528051058L;
 
     /**
      * 页面大小
