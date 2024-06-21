@@ -1,7 +1,6 @@
 package com.zecola.learnlink.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zecola.learnlink.common.BaseResponse;
 import com.zecola.learnlink.common.ErrorCode;
@@ -24,8 +23,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.zecola.learnlink.contant.UserConstant.ADMIN_ROLE;
-import static com.zecola.learnlink.contant.UserConstant.USER_LOGIN_STATE;
+import static com.zecola.learnlink.constant.UserConstant.USER_LOGIN_STATE;
 
 /**
  * 用户接口
@@ -153,6 +151,7 @@ public class UserController {
         return ResultUtils.success(userList);
     }
 
+    // todo 推荐多个，未实现
     /**
      * 根据当前请求推荐用户列表。
      * <p>
@@ -230,6 +229,22 @@ public class UserController {
         return true;*//*
         return user != null && user.getUserRole() == ADMIN_ROLE;
     }*/
+
+    /**
+     * 获取最匹配的用户
+     *
+     * @param num
+     * @param request
+     * @return
+     */
+    @GetMapping("/match")
+    public BaseResponse<List<User>> matchUsers(long num, HttpServletRequest request) {
+        if (num <= 0 || num > 20) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User user = userService.getLoginUser(request);
+        return ResultUtils.success(userService.matchUsers(num, user));
+    }
 
 
 
