@@ -1,4 +1,4 @@
-package com.zecola.learnlink.contant;
+package com.zecola.learnlink.constant;
 
 /**
  * 用户常量
