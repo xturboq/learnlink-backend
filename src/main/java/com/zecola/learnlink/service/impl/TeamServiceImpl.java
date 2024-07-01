@@ -119,6 +119,7 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
         if (!result) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "创建队伍失败");
         }
+
         return teamId;
     }
 

@@ -10,9 +10,14 @@ import com.zecola.learnlink.model.domain.User;
 import com.zecola.learnlink.model.request.UserLoginRequest;
 import com.zecola.learnlink.model.request.UserRegisterRequest;
 import com.zecola.learnlink.service.UserService;
+import com.zecola.learnlink.utils.ValidateCodeUtils;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +28,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.zecola.learnlink.constant.Constant.REGISTER_CODE_KEY;
+import static com.zecola.learnlink.constant.Constant.REGISTER_CODE_TTL;
 import static com.zecola.learnlink.constant.UserConstant.USER_LOGIN_STATE;
 
 /**
@@ -32,7 +39,7 @@ import static com.zecola.learnlink.constant.UserConstant.USER_LOGIN_STATE;
 @RestController
 @RequestMapping("/user")
 @Slf4j
-@CrossOrigin(origins = {"http://localhost:3000"})
+//@CrossOrigin(origins = {"http://localhost:3000"})
 public class UserController {
 
     @Resource
@@ -40,6 +47,9 @@ public class UserController {
 
     @Resource
     private RedisTemplate redisTemplate;
+
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
 
     /**
      * 用户注册
@@ -244,6 +254,28 @@ public class UserController {
         }
         User user = userService.getLoginUser(request);
         return ResultUtils.success(userService.matchUsers(num, user));
+    }
+
+    /**
+     * 发送消息
+     *
+     * @param phone 电话
+     * @return {@link BaseResponse}<{@link String}>
+     */
+    @GetMapping("/message")
+    public BaseResponse<String> sendMessage(String phone) {
+        if (StringUtils.isBlank(phone)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        Integer code = ValidateCodeUtils.generateValidateCode();
+        String key = REGISTER_CODE_KEY + phone;
+        String phoneCode = stringRedisTemplate.opsForValue().get(key);
+        if (phoneCode != null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "请稍后再试");
+        }
+        //MessageUtils.sendMessage(phone, String.valueOf(code));
+        log.info("验证码: " + code);
+        return ResultUtils.success("短信发送成功");
     }
 
 
